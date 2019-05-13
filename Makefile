@@ -3,6 +3,8 @@ REL := build
 VERSION ?= latest
 PROJ ?= $(shell basename ${PWD})
 
+SHELL := /bin/bash
+
 default: kubeval
 
 kubeval-install:
