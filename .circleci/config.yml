@@ -1,0 +1,82 @@
+version: 2
+defaults: &defaults
+  machine:
+    image: circleci/classic:latest
+  environment:
+    KUBE_VERSION: 1.11.0
+    KUBEVAL_VERSION: 0.7.3
+    PROJ: circleci-exporter
+
+jobs:
+  run_tests:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Validate with kubeval
+          command: make kubeval
+
+  build_image:
+    <<: *defaults
+    steps:
+       - checkout
+       - run:
+          name: Docker build
+          command: make build
+       - run:
+          name: Docker save cache
+          command: make save-cache
+       - save_cache:
+          key: circleci-exporter-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - docker-cache
+
+  publish_master:
+    <<: *defaults
+    steps:
+       - checkout
+       - restore_cache:
+          keys:
+             - circleci-exporter-{{ .Environment.CIRCLE_SHA1 }}
+       - run:
+          name: Load and publish image master
+          command: |
+            make publish VERSION=master 
+            make publish
+
+  publish_tag:
+    <<: *defaults
+    steps:
+       - checkout
+       - restore_cache:
+          keys:
+             - circleci-exporter-{{ .Environment.CIRCLE_SHA1 }}
+       - run:
+          name: Load and publish image hash
+          command: |
+            make publish VERSION=${CIRCLE_TAG}
+            make publish
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - run_tests
+      - build_image:
+          filters:
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*$/
+      - publish_master:
+          requires: 
+            - build_image
+          filters:
+            branches:
+              only: master
+      - publish_tag:
+          requires: 
+            - build_image
+          filters:
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*$/
+            branches:
+              ignore: /.*/
