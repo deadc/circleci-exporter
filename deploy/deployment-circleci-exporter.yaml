@@ -29,8 +29,8 @@ spec:
               key: CIRCLE_TOKEN
               name: circleci-exporter
         name: circleci-exporter
-        image: vivareal/circleci-exporter:v0.0.1
-        imagePullPolicy: Always
+        image: vivareal/circleci-exporter:v0.1
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
           protocol: TCP
