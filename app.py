@@ -60,6 +60,12 @@ def add_last_build_status(metric, project):
             'success':              0
         }
         value = value.get(project["status"])
+
+        to_remove = [item for item in metric._metrics if project["reponame"] in item]
+        if to_remove:
+            print(*to_remove[0])
+            metric.remove(*to_remove[0])
+
         metric.labels(
             project_name      = '{}'.format(project["reponame"]),
             branch            = '{}'.format(project['branch']),
