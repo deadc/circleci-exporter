@@ -36,6 +36,14 @@ def get_metrics(project):
 def add_last_build_date(metric, project):
     if project["start_time"] is not None:
         value = convert_to_timestamp(project["start_time"])
+        
+        metric_copy = {k:v for k,v in metric._metrics.items() if v}
+        for detail, object in metric_copy.items():
+            if detail[0] != project["reponame"]:
+                continue
+            if detail[2] != project["user"]["login"]:
+                metric.remove(*detail)
+
         metric.labels(
             project_name      = '{}'.format(project["reponame"]),
             branch            = '{}'.format(project['branch']),
@@ -65,10 +73,8 @@ def add_last_build_status(metric, project):
 
     metric_copy = {k:v for k,v in metric._metrics.items() if v}
     for detail, object in metric_copy.items():
-        # ignore when comparing different projects
         if detail[0] != project["reponame"]:
             continue
-        # detail[2] == started_by label of metric
         if detail[2] != project["user"]["login"]:
             metric.remove(*detail)
 
@@ -81,6 +87,14 @@ def add_last_build_status(metric, project):
 def add_last_build_time_millis(metric, project):
     if project["build_time_millis"]:
         value = project['build_time_millis']
+
+        metric_copy = {k:v for k,v in metric._metrics.items() if v}
+        for detail, object in metric_copy.items():
+            if detail[0] != project["reponame"]:
+                continue
+            if detail[2] != project["user"]["login"]:
+                metric.remove(*detail)
+
         metric.labels(
             project_name      = '{}'.format(project["reponame"]),
             branch            = '{}'.format(project['branch']),
@@ -90,6 +104,14 @@ def add_last_build_time_millis(metric, project):
 def add_last_build_number(metric, project):
     if project["build_num"]:
         value = project['build_num']
+        
+        metric_copy = {k:v for k,v in metric._metrics.items() if v}
+        for detail, object in metric_copy.items():
+            if detail[0] != project["reponame"]:
+                continue
+            if detail[2] != project["user"]["login"]:
+                metric.remove(*detail)
+
         metric.labels(
             project_name      = '{}'.format(project["reponame"]),
             branch            = '{}'.format(project['branch']),
